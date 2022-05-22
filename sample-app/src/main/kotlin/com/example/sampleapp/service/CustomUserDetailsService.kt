@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.stereotype.Service
+import java.util.Calendar
 import java.util.Collections
 
 @Service
@@ -30,7 +31,24 @@ class CustomUserDetailsService(
 
         val mUser = mUserRepository.findById(userId).orElse(null) ?: throw UsernameNotFoundException("Not found userId")
 
-        val authorities =listOf(SimpleGrantedAuthority(AppUtil.Role.ROLE_USER.name))
+        val loginUser = AppUtil.getLoginUser()
+        val authorities = if (loginUser != null) {
+            // 再認証のとき
+            if (loginUser.username != userId) {
+                throw UsernameNotFoundException("userId is invalid")
+            }
+
+            // ADMIN権限を付与する
+            listOf(
+                SimpleGrantedAuthority(AppUtil.Role.ROLE_USER.name),
+                SimpleGrantedAuthority(AppUtil.Role.ROLE_ADMIN.name),
+            )
+        } else {
+            // 初回認証のときは USER権限を付与する
+            listOf(
+                SimpleGrantedAuthority(AppUtil.Role.ROLE_USER.name),
+            )
+        }
 
         return User(mUser.id,mUser.password, authorities)
     }
