@@ -1,5 +1,6 @@
 package com.example.sampleapp
 
+import com.example.sampleapp.util.AppUtil
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.builders.WebSecurity
@@ -16,7 +17,8 @@ class AppWebSecurityConfig : WebSecurityConfigurerAdapter() {
             .authorizeRequests()
             .antMatchers("/h2-console/**").permitAll()
             .antMatchers("/login").permitAll()
-            .anyRequest().authenticated()
+            .antMatchers("/settings").hasAuthority(AppUtil.Role.ROLE_ADMIN.name)
+            .anyRequest().hasAuthority(AppUtil.Role.ROLE_USER.name)
 
         // Login Page
         http

@@ -1,6 +1,8 @@
 package com.example.sampleapp.service
 
 import com.example.sampleapp.repository.MuserRepository
+import com.example.sampleapp.util.AppUtil
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.User
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
@@ -28,6 +30,8 @@ class CustomUserDetailsService(
 
         val mUser = mUserRepository.findById(userId).orElse(null) ?: throw UsernameNotFoundException("Not found userId")
 
-        return User(mUser.id,mUser.password, Collections.emptyList())
+        val authorities =listOf(SimpleGrantedAuthority(AppUtil.Role.ROLE_USER.name))
+
+        return User(mUser.id,mUser.password, authorities)
     }
 }

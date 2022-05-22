@@ -4,6 +4,11 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.User
 
 class AppUtil {
+    enum class Role {
+        ROLE_USER,
+        ROLE_ADMIN,
+    }
+
     companion object {
         fun getLoginUser(): User? {
             val context = SecurityContextHolder.getContext()
