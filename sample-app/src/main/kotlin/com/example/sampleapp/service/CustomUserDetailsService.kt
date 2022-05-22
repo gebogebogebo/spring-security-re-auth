@@ -1,5 +1,6 @@
 package com.example.sampleapp.service
 
+import com.example.sampleapp.ExpireGrantedAuthority
 import com.example.sampleapp.repository.MuserRepository
 import com.example.sampleapp.util.AppUtil
 import org.springframework.security.core.authority.SimpleGrantedAuthority
@@ -38,10 +39,14 @@ class CustomUserDetailsService(
                 throw UsernameNotFoundException("userId is invalid")
             }
 
+            // ADMINの有効期限 = 180秒
+            val expire = Calendar.getInstance()
+            expire.add(Calendar.SECOND, 180)
+
             // ADMIN権限を付与する
             listOf(
                 SimpleGrantedAuthority(AppUtil.Role.ROLE_USER.name),
-                SimpleGrantedAuthority(AppUtil.Role.ROLE_ADMIN.name),
+                ExpireGrantedAuthority(AppUtil.Role.ROLE_ADMIN.name, expire.time),
             )
         } else {
             // 初回認証のときは USER権限を付与する

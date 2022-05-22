@@ -2,9 +2,12 @@ package com.example.sampleapp
 
 import com.example.sampleapp.util.AppUtil
 import org.springframework.context.annotation.Configuration
+import org.springframework.security.access.AccessDecisionManager
+import org.springframework.security.access.vote.UnanimousBased
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.builders.WebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
+import org.springframework.security.web.access.expression.WebExpressionVoter
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher
 
@@ -17,6 +20,7 @@ class AppWebSecurityConfig : WebSecurityConfigurerAdapter() {
     override fun configure(http: HttpSecurity) {
         http
             .authorizeRequests()
+            .accessDecisionManager(createAccessDecisionManager())
             .antMatchers("/h2-console/**").permitAll()
             .antMatchers("/login").permitAll()
             .antMatchers("/settings").hasAuthority(AppUtil.Role.ROLE_ADMIN.name)
@@ -42,6 +46,15 @@ class AppWebSecurityConfig : WebSecurityConfigurerAdapter() {
         filter.setAuthenticationManager(authenticationManagerBean())
         filter.setAuthenticationFailureHandler(SimpleUrlAuthenticationFailureHandler("/login?error"))
         http.addFilterAt(filter, CustomUsernamePasswordAuthenticationFilter::class.java)
+    }
+
+    private fun createAccessDecisionManager(): AccessDecisionManager {
+        return UnanimousBased(
+            listOf(
+                WebExpressionVoter(),
+                AcceptAdminTokenVoter(),
+            )
+        )
     }
 
 }
